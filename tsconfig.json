@@ -36,6 +36,7 @@
   "exclude": [
     "node_modules",
     "_backup",
-    "_backup_legacy"
+    "_backup_legacy",
+    "prisma/seed.ts"
   ]
 }
