@@ -1,0 +1,7 @@
+{
+  "name": "TrainerPro WhiteLabel_v2",
+  "description": "Um app de gestão multi-tenant para Personal Trainers com construtor de treinos, acompanhamento de alunos e avaliações.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

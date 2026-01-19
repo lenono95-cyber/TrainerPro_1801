@@ -1,0 +1,33 @@
+model WorkoutLog {
+  id               String   @id @default(uuid())
+  tenant_id        String
+  student_id       String
+  workout_id       String
+  duration_seconds Int
+  date             DateTime @default(now())
+  
+  // Relations
+  tenant  Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  workout Workout @relation(fields: [workout_id], references: [id])
+
+  exercises WorkoutLogExercise[]
+
+  @@index([tenant_id])
+  @@index([student_id])
+  @@map("workout_logs")
+}
+
+model WorkoutLogExercise {
+  id             String @id @default(uuid())
+  workout_log_id String
+  exercise_name  String
+  sets_done      Int
+  reps_done      Int
+  weight_used    Float
+
+  log WorkoutLog @relation(fields: [workout_log_id], references: [id], onDelete: Cascade)
+
+  @@index([workout_log_id])
+  @@map("workout_log_exercises")
+}

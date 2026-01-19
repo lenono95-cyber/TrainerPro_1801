@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrainerPro - Painel Administrativo Web
 
-## Getting Started
+> **Painel Super Admin** para gestão global do sistema TrainerPro
 
-First, run the development server:
+---
+
+## 🎯 Sobre Este Projeto
+
+Este é o **Painel Administrativo Web** do TrainerPro, exclusivo para **Super Admins**.
+
+### ✅ Funcionalidades
+- 📊 Dashboard com KPIs globais (MRR, Churn, LTV)
+- 🏢 Gestão de Tenants (Academias e Personais)
+- 📝 Audit Logs (Rastreamento de ações críticas)
+- 💳 Billing (Planos e Pagamentos)
+- 👁️ Impersonation (Login As)
+
+### ❌ O que NÃO está aqui
+Este repositório **não** contém:
+- App Mobile (Trainer/Student)
+- UI de gestão de alunos
+- Criação de treinos
+- Chat/Mensagens
+- Agenda/Schedule
+
+> **Nota:** O App Mobile está em um repositório separado e compartilha o backend (Server Actions + Prisma).
+
+---
+
+## 🚀 Quick Start
+
+### Pré-requisitos
+- Node.js 18+
+- PostgreSQL (Supabase)
+- npm ou yarn
+
+### Instalação
 
 ```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/TrainerPro_1801.git
+cd TrainerPro_1801
+
+# Instale as dependências
+npm install
+
+# Configure o banco de dados
+cp .env.example .env
+# Edite .env com suas credenciais do Supabase
+
+# Execute as migrações
+npx prisma generate
+npx prisma db push
+
+# Inicie o servidor de desenvolvimento
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse: `http://localhost:3000/admin/dashboard`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔐 Autenticação
 
-## Learn More
+### Login como Super Admin
 
-To learn more about Next.js, take a look at the following resources:
+1. Crie um usuário Super Admin no banco:
+```sql
+INSERT INTO users (email, name, role, tenant_id, password)
+VALUES ('admin@trainerpro.com', 'Super Admin', 'SUPER_ADMIN', 'tenant-id', 'hashed-password');
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Acesse `/login`
+3. Entre com as credenciais
+4. Você será redirecionado para `/admin/dashboard`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📁 Estrutura do Projeto
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+TrainerPro_1801/
+├── src/
+│   ├── app/
+│   │   └── admin/              # Rotas do Admin
+│   │       ├── dashboard/      # Dashboard principal
+│   │       ├── tenants/        # Gestão de tenants
+│   │       ├── billing/        # Financeiro
+│   │       └── logs/           # Audit logs
+│   ├── components/
+│   │   └── admin/              # Componentes do Admin
+│   ├── actions/                # Server Actions (Backend)
+│   ├── lib/                    # Utilitários
+│   └── middleware.ts           # Proteção de rotas
+├── prisma/
+│   └── schema.prisma           # Schema do banco
+└── ARCHITECTURE.md             # Documentação de arquitetura
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛠️ Tecnologias
+
+- **Framework:** Next.js 14 (App Router)
+- **UI:** React + TailwindCSS
+- **Backend:** Server Actions + Prisma ORM
+- **Banco:** PostgreSQL (Supabase)
+- **Auth:** NextAuth.js
+- **Deploy:** Vercel
+
+---
+
+## 📚 Documentação
+
+- [Arquitetura](./ARCHITECTURE.md) - Decisões arquiteturais e separação Web/Mobile
+- [Plano de Alinhamento](./.gemini/brain/*/alignment_plan.md) - Alinhamento com código original
+- [Configuração do Banco](./GUIA_CONFIGURACAO_BANCO.md) - Setup do PostgreSQL
+
+---
+
+## 🔗 Links Relacionados
+
+- **App Mobile:** `TrainerPro_Mobile` (repositório separado)
+- **Backend Compartilhado:** `/src/actions/` (usado por Web e Mobile)
+- **Schema Prisma:** `/prisma/schema.prisma`
+
+---
+
+## 📝 Licença
+
+Proprietary - Todos os direitos reservados
+
+---
+
+**Última Atualização:** 18/01/2026
