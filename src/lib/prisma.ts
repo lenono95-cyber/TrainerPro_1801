@@ -1,14 +1,30 @@
 import { PrismaClient } from '@prisma/client'
+import { Pool } from 'pg'
+import { PrismaPg } from '@prisma/adapter-pg'
 
 const prismaClientSingleton = () => {
-  // Safe initialization: Check if env var exists
+  // Safe initialization check
   if (!process.env.DATABASE_URL) {
     console.warn("⚠️ DATABASE_URL missing. Using Mock Prisma Client for build.");
     return mockPrisma();
   }
 
   try {
-    return new PrismaClient()
+    const connectionString = process.env.DATABASE_URL
+
+    // Configuração do Pool (Otimizado para Serverless/Vercel)
+    const pool = new Pool({
+      connectionString,
+      max: 10, // Limite de conexões do pool
+      idleTimeoutMillis: 30000
+    })
+
+    // Adaptador Prisma -> Postgres
+    const adapter = new PrismaPg(pool)
+
+    // Inicializa Prisma com Adaptador
+    return new PrismaClient({ adapter })
+
   } catch (e) {
     console.warn("⚠️ Failed to initialize Prisma Client. Using Mock fallback.", e);
     return mockPrisma();
@@ -20,7 +36,6 @@ function mockPrisma() {
     get: (target, prop) => {
       if (prop === '$connect') return () => Promise.resolve();
       if (prop === '$disconnect') return () => Promise.resolve();
-      // Return a recursive proxy for model access (e.g. prisma.user.findMany)
       return new Proxy({}, {
         get: () => () => Promise.resolve([])
       });
