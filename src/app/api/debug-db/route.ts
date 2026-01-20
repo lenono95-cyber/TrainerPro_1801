@@ -64,7 +64,7 @@ export async function GET() {
             }
         });
 
-    } catch (error: any) {
+    } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
         console.error("[DEBUG-DB] Fatal Error:", error);
         return NextResponse.json({
             status: "FATAL_ERROR",
