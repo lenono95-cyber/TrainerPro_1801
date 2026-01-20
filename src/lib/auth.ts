@@ -20,31 +20,48 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                console.log("[AUTH] Authorize attempt for:", credentials?.email);
+
                 if (!credentials?.email || !credentials?.password) {
+                    console.log("[AUTH] Missing email or password");
                     return null;
                 }
 
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials.email },
-                });
+                try {
+                    const user = await prisma.user.findUnique({
+                        where: { email: credentials.email },
+                    });
 
-                if (!user || !user.password) {
+                    if (!user) {
+                        console.log("[AUTH] User not found:", credentials.email);
+                        return null;
+                    }
+
+                    if (!user.password) {
+                        console.log("[AUTH] User has no password set:", credentials.email);
+                        return null;
+                    }
+
+                    const isPasswordValid = await compare(credentials.password, user.password);
+                    console.log("[AUTH] Password valid:", isPasswordValid);
+
+                    if (!isPasswordValid) {
+                        return null;
+                    }
+
+                    console.log("[AUTH] Login successful for:", user.email, "Role:", user.role);
+
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        role: user.role,
+                        tenant_id: user.tenant_id,
+                    };
+                } catch (error) {
+                    console.error("[AUTH] Database error:", error);
                     return null;
                 }
-
-                const isPasswordValid = await compare(credentials.password, user.password);
-
-                if (!isPasswordValid) {
-                    return null;
-                }
-
-                return {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                    tenant_id: user.tenant_id,
-                };
             },
         }),
     ],
