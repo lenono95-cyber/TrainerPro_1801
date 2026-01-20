@@ -2,10 +2,20 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Force Node.js runtime explicitely
 
 export async function GET() {
     try {
         console.log("[DEBUG-DB] Testing database connection...");
+
+        // 0. Test raw connection (Simplest check)
+        try {
+            await prisma.$queryRaw`SELECT 1`;
+            console.log("[DEBUG-DB] Raw query SELECT 1 successful");
+        } catch (e: any) {
+            console.error("[DEBUG-DB] Raw query failed:", e);
+            // Don't throw yet, try to collect env info
+        }
 
         // 1. Check Env Var (Masked)
         const dbUrl = process.env.DATABASE_URL;
@@ -17,43 +27,49 @@ export async function GET() {
 
         // 2. Simple Query
         const start = Date.now();
-        const userCount = await prisma.user.count();
+        let userCount = -1;
+        try {
+            userCount = await prisma.user.count();
+        } catch (e) {
+            console.error("[DEBUG-DB] Count query failed", e);
+        }
         const duration = Date.now() - start;
 
         // 3. Check specific admin user
-        const adminUser = await prisma.user.findUnique({
-            where: { email: 'admin@trainerpro.com' },
-            select: { id: true, email: true, role: true, password: true } // password hash presence check
-        });
+        let adminUser = null;
+        try {
+            adminUser = await prisma.user.findUnique({
+                where: { email: 'admin@trainerpro.com' },
+                select: { id: true, email: true, role: true, password: true }
+            });
+        } catch (e) {
+            console.error("[DEBUG-DB] Admin lookup failed", e);
+        }
 
-        const hasPassword = !!adminUser?.password;
         const passwordHashStart = adminUser?.password ? adminUser.password.substring(0, 10) : "N/A";
 
         return NextResponse.json({
-            status: "SUCCESS",
-            message: "Database connection working",
+            status: userCount >= 0 ? "SUCCESS" : "PARTIAL_ERROR",
+            message: "Database connection check complete",
             latency: `${duration}ms`,
             userCount,
             adminUserFound: !!adminUser,
             adminEmail: adminUser?.email,
-            adminRole: adminUser?.role,
             passwordHashStart: passwordHashStart,
             env: {
                 DATABASE_URL: maskedUrl,
                 NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-                NODE_ENV: process.env.NODE_ENV
+                NODE_ENV: process.env.NODE_ENV,
+                RUNTIME: process.release?.name || 'unknown'
             }
         });
 
     } catch (error: any) {
-        console.error("[DEBUG-DB] Check Failed:", error);
+        console.error("[DEBUG-DB] Fatal Error:", error);
         return NextResponse.json({
-            status: "ERROR",
+            status: "FATAL_ERROR",
             message: error.message,
             stack: error.stack,
-            env: {
-                DATABASE_URL: process.env.DATABASE_URL ? "DEFINED" : "MISSING"
-            }
         }, { status: 500 });
     }
 }
