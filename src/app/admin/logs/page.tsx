@@ -5,6 +5,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { getAuditLogs } from "@/actions/admin";
 import { AuditLogsTable } from "@/components/admin/AuditLogsTable";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AuditLogsPage() {
     const session = await getServerSession(authOptions);
 

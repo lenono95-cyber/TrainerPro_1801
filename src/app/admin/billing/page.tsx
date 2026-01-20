@@ -5,6 +5,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { getSubscriptionPlans } from "@/actions/billing";
 import { BillingView } from "@/components/admin/BillingView";
 
+export const dynamic = 'force-dynamic';
+
 export default async function BillingPage() {
     const session = await getServerSession(authOptions);
 

@@ -5,6 +5,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { getAllTenants } from "@/actions/admin";
 import { TenantsTable } from "@/components/admin/TenantsTable";
 
+export const dynamic = 'force-dynamic';
+
 export default async function TenantsPage() {
     const session = await getServerSession(authOptions);
 
