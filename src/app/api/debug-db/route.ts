@@ -12,7 +12,7 @@ export async function GET() {
         try {
             await prisma.$queryRaw`SELECT 1`;
             console.log("[DEBUG-DB] Raw query SELECT 1 successful");
-        } catch (e: any) {
+        } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
             console.error("[DEBUG-DB] Raw query failed:", e);
             // Don't throw yet, try to collect env info
         }
